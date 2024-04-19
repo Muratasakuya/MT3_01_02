@@ -14,7 +14,7 @@ void Sphere::DrawSphere(
 	ImGui::End();
 
 	// 分割数
-	const uint32_t kSubdivision = 32;
+	const uint32_t kSubdivision = 12;
 	// 緯度分割1つ文の角度
 	const float kLatEvery = Pi() / kSubdivision;
 	// 経度分割1つ分の角度
