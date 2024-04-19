@@ -1,121 +1,75 @@
 ﻿#include "Grid.h"
 
 /// <summary>
-/// グリッド線を表示する関数、縦横11本ずつ
+/// 縦横のグリッド線を描画する関数
 /// </summary>
-void Grid::DrawGid(
-	const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix, const Matrix4x4& viewportMatrix) {
+/// <param name="viewMatrix"></param>
+/// <param name="projectionMatrix"></param>
+/// <param name="viewportMatrix"></param>
+void Grid::DrawGrid(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix, const Matrix4x4& viewportMatrix) {
 
-	// 半分の幅
-	const float kGridHalfWidth_ = 2.0f;
-	// 分割数
-	const uint32_t kSubdivision_ = 10;
-	// 1つ文の長さ
-	const float kGirdEvery_ = (kGridHalfWidth_ * 2.0f) / static_cast<float>(kSubdivision_);
+	const float kGridHalfWidth = 2.0f;
+	const uint32_t kSubdivision = 10;
+	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);
 
-	// 奥から手前への線を順々に引いていく
-	for (uint32_t xIndex = 0; xIndex <= kSubdivision_; xIndex++) {
+	/****************************************************************************************************************************/
+	// 縦線の描画
 
-		// 上の情報を使って始点と終点のワールド座標系を求める
-		// 始点の設定
-		startPoint_[xIndex].localPos_.x = static_cast<int>(xIndex - kSubdivision_ / 2) * kGirdEvery_;
-		startPoint_[xIndex].localPos_.y = 0.0f;
-		startPoint_[xIndex].localPos_.z = kGridHalfWidth_;
-		// 終点の設定
-		endPoint_[xIndex].localPos_.x = static_cast<int>(xIndex - kSubdivision_ / 2) * kGirdEvery_;
-		endPoint_[xIndex].localPos_.y = 0.0f;
-		endPoint_[xIndex].localPos_.z = -kGridHalfWidth_;
+	for (uint32_t xIndex = 0; xIndex <= kSubdivision; xIndex++) {
+		
+		// グリッドの幅を均等に分割した位置を計算
+		float xWorldPos = -kGridHalfWidth + xIndex * kGridEvery;
+
+		// 始点と終点のワールド座標を設定
+		Vec3f worldStartPos(xWorldPos, 0.0f, kGridHalfWidth);
+		Vec3f worldEndPos(xWorldPos, 0.0f, -kGridHalfWidth);
+
+		Vec3f ndcStartPos = Transform(worldStartPos, Multiply(viewMatrix, projectionMatrix));
+		Vec3f ndcEndPos = Transform(worldEndPos, Multiply(viewMatrix, projectionMatrix));
+
+		// 座標変換
+		Vec3f screenStartPos = Transform(ndcStartPos, viewportMatrix);
+		Vec3f screenEndPos = Transform(ndcEndPos, viewportMatrix);
 
 		// xIndexの値が6(真ん中の値)のとき黒で描画しその他は灰色で描画する
-		isCenterLengthGrid_ = (xIndex == kSubdivision_ / 2);
-		gridColor_[0] = isCenterLengthGrid_ ? 0x000000ff : 0xaaaaaaff;
+		bool isCenterLengthGrid = (xIndex == kSubdivision / 2);
+		uint32_t gridColor = isCenterLengthGrid ? 0x000000ff : 0xaaaaaaff;
 
-		/****************************************************************************************************************************/
-		// スクリーン座標系まで変換する
-		// 始点の変換
-		startPoint_[xIndex].worldMatrix_ =
-			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, startPoint_[xIndex].localPos_);
-
-		startPoint_[xIndex].worldViewProjectionMatrix_ =
-			Multiply(startPoint_[xIndex].worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-
-		ndcPos_ =
-			Transform(startPoint_[xIndex].localPos_, startPoint_[xIndex].worldViewProjectionMatrix_);
-		startPoint_[xIndex].screenPos_ =
-			Transform(ndcPos_, viewportMatrix);
-
-		/****************************************************************************************************************************/
-		// 終点の変換
-		endPoint_[xIndex].worldMatrix_ =
-			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, endPoint_[xIndex].localPos_);
-
-		endPoint_[xIndex].worldViewProjectionMatrix_ =
-			Multiply(endPoint_[xIndex].worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-
-		ndcPos_ =
-			Transform(endPoint_[xIndex].localPos_, endPoint_[xIndex].worldViewProjectionMatrix_);
-		endPoint_[xIndex].screenPos_ =
-			Transform(ndcPos_, viewportMatrix);
-
-		// 変換した座標を使って表示
-		// 色は薄い灰色(0xaaaaaaff)、原点は黒くらいが良い
+		// 線を描画
 		Novice::DrawLine(
-			static_cast<int>(startPoint_[xIndex].screenPos_.x), static_cast<int>(startPoint_[xIndex].screenPos_.y),
-			static_cast<int>(endPoint_[xIndex].screenPos_.x), static_cast<int>(endPoint_[xIndex].screenPos_.y),
-			gridColor_[0]
+			static_cast<int>(screenStartPos.x), static_cast<int>(screenStartPos.y),
+			static_cast<int>(screenEndPos.x), static_cast<int>(screenEndPos.y),
+			gridColor
 		);
 	}
 
-	// 左から右への線を順々に引いていく
-	for (uint32_t zIndex = 0; zIndex <= kSubdivision_; zIndex++) {
+	/****************************************************************************************************************************/
+	// 横線の描画
 
-		// 上の情報を使って始点と終点のワールド座標系を求める
-		// 始点の設定
-		startPoint_[zIndex].localPos_.x = kGridHalfWidth_;
-		startPoint_[zIndex].localPos_.y = 0.0f;
-		startPoint_[zIndex].localPos_.z = static_cast<int>(zIndex - kSubdivision_ / 2) * kGirdEvery_;
-		// 終点の設定
-		endPoint_[zIndex].localPos_.x = -kGridHalfWidth_;
-		endPoint_[zIndex].localPos_.y = 0.0f;
-		endPoint_[zIndex].localPos_.z = static_cast<int>(zIndex - kSubdivision_ / 2) * kGirdEvery_;
+	for (uint32_t zIndex = 0; zIndex <= kSubdivision; zIndex++) {
+		// グリッドの幅を均等に分割した位置を計算
+		float zWorldPos = -kGridHalfWidth + zIndex * kGridEvery;
+
+		// 始点と終点のワールド座標を設定
+		Vec3f worldStartPos(-kGridHalfWidth, 0.0f, zWorldPos);
+		Vec3f worldEndPos(kGridHalfWidth, 0.0f, zWorldPos);
+
+		Vec3f ndcStartPos = Transform(worldStartPos, Multiply(viewMatrix, projectionMatrix));
+		Vec3f ndcEndPos = Transform(worldEndPos, Multiply(viewMatrix, projectionMatrix));
+
+		// 座標変換
+		Vec3f screenStartPos = Transform(ndcStartPos, viewportMatrix);
+		Vec3f screenEndPos = Transform(ndcEndPos, viewportMatrix);
 
 		// zIndexの値が6(真ん中の値)のとき黒で描画しその他は灰色で描画する
-		isCenterWidthGrid_ = (zIndex == kSubdivision_ / 2);
-		gridColor_[1] = isCenterWidthGrid_ ? 0x000000ff : 0xaaaaaaff;
+		bool isCenterLengthGrid = (zIndex == kSubdivision / 2);
+		uint32_t gridColor = isCenterLengthGrid ? 0x000000ff : 0xaaaaaaff;
 
-		/****************************************************************************************************************************/
-		// スクリーン座標系まで変換する
-		// 始点の変換
-		startPoint_[zIndex].worldMatrix_ =
-			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, startPoint_[zIndex].localPos_);
-
-		startPoint_[zIndex].worldViewProjectionMatrix_ =
-			Multiply(startPoint_[zIndex].worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-
-		ndcPos_ =
-			Transform(startPoint_[zIndex].localPos_, startPoint_[zIndex].worldViewProjectionMatrix_);
-		startPoint_[zIndex].screenPos_ =
-			Transform(ndcPos_, viewportMatrix);
-
-		/****************************************************************************************************************************/
-		// 終点の変換
-		endPoint_[zIndex].worldMatrix_ =
-			MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, endPoint_[zIndex].localPos_);
-
-		endPoint_[zIndex].worldViewProjectionMatrix_ =
-			Multiply(endPoint_[zIndex].worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-
-		ndcPos_ =
-			Transform(endPoint_[zIndex].localPos_, endPoint_[zIndex].worldViewProjectionMatrix_);
-		endPoint_[zIndex].screenPos_ =
-			Transform(ndcPos_, viewportMatrix);
-
-		// 変換した座標を使って表示
-		// 色は薄い灰色(0xaaaaaaff)、原点は黒くらいが良い
+		// 線を描画
 		Novice::DrawLine(
-			static_cast<int>(startPoint_[zIndex].screenPos_.x), static_cast<int>(startPoint_[zIndex].screenPos_.y),
-			static_cast<int>(endPoint_[zIndex].screenPos_.x), static_cast<int>(endPoint_[zIndex].screenPos_.y),
-			gridColor_[1]
+			static_cast<int>(screenStartPos.x), static_cast<int>(screenStartPos.y),
+			static_cast<int>(screenEndPos.x), static_cast<int>(screenEndPos.y),
+			gridColor
 		);
 	}
 }

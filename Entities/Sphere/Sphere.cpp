@@ -49,49 +49,31 @@ void Sphere::DrawSphere(
 			c.localPos_ += center.localPos_;
 
 			/****************************************************************************************************************************/
-			// a、b、c、中心座標をスクリーン座標に変換
-			// 中心座標の変換
-			center.worldMatrix_ =
-				MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, center.localPos_);
-			center.worldViewProjectionMatrix_ =
-				Multiply(center.worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-			ndcPos_ =
-				Transform(center.localPos_, center.worldViewProjectionMatrix_);
-			center.screenPos_ =
-				Transform(ndcPos_, viewportMatrix);
-
-			/****************************************************************************************************************************/
 			// a地点の変換
 			a.worldMatrix_ =
 				MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, a.localPos_);
-			a.worldViewProjectionMatrix_ =
-				Multiply(a.worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-			ndcPos_ =
-				Transform(a.localPos_, a.worldViewProjectionMatrix_);
+			ndcPosA_ =
+				Transform(a.localPos_, Multiply(viewMatrix, projectionMatrix));
 			a.screenPos_ =
-				Transform(ndcPos_, viewportMatrix);
+				Transform(ndcPosA_, viewportMatrix);
 
 			/****************************************************************************************************************************/
 			// b地点の変換
 			b.worldMatrix_ =
 				MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, b.localPos_);
-			b.worldViewProjectionMatrix_ =
-				Multiply(b.worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-			ndcPos_ =
-				Transform(b.localPos_, b.worldViewProjectionMatrix_);
+			ndcPosB_ =
+				Transform(b.localPos_, Multiply(viewMatrix, projectionMatrix));
 			b.screenPos_ =
-				Transform(ndcPos_, viewportMatrix);
+				Transform(ndcPosB_, viewportMatrix);
 
 			/****************************************************************************************************************************/
 			// c地点の変換
 			c.worldMatrix_ =
 				MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, c.localPos_);
-			c.worldViewProjectionMatrix_ =
-				Multiply(c.worldMatrix_, Multiply(viewMatrix, projectionMatrix));
-			ndcPos_ =
-				Transform(c.localPos_, c.worldViewProjectionMatrix_);
+			ndcPosC_ =
+				Transform(c.localPos_, Multiply(viewMatrix, projectionMatrix));
 			c.screenPos_ =
-				Transform(ndcPos_, viewportMatrix);
+				Transform(ndcPosC_, viewportMatrix);
 
 			/****************************************************************************************************************************/
 			// ab、bcで描画

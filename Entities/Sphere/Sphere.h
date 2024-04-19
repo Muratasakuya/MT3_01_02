@@ -16,7 +16,7 @@ private:
 	/// <summary>
 	/// 各点の構造体
 	/// </summary>
-	struct Point{
+	struct Point {
 
 		Matrix4x4 worldMatrix_;
 		Matrix4x4 worldViewProjectionMatrix_;
@@ -27,7 +27,9 @@ private:
 
 	Point a{}, b{}, c{}, center{};
 
-	Vec3f ndcPos_{};
+	Vec3f ndcPosA_{};
+	Vec3f ndcPosB_{};
+	Vec3f ndcPosC_{};
 
 public:
 	/// <summary>
@@ -36,9 +38,9 @@ public:
 
 	// コンストラクタ
 	Sphere() {
-	
+
 		// 球の半径
-		radius_ = 1.0f;
+		radius_ = 0.5f;
 
 		// 球の中心
 		center.localPos_ = { 0.0f,0.0f,0.0f };
@@ -47,6 +49,5 @@ public:
 	~Sphere() {}
 
 	// 球を描画する関数
-	void DrawSphere(
-		const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix, const Matrix4x4& viewportMatrix);
+	void DrawSphere(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix, const Matrix4x4& viewportMatrix);
 };

@@ -51,9 +51,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		// グリッド線の描画
-		grid->DrawGid(
-			camera->GetViewMatrix(), camera->GetProjectionMatrix(), camera->GetViewportMatrix()
-		);
+		grid->DrawGrid(camera->GetViewMatrix(),camera->GetProjectionMatrix(), camera->GetViewportMatrix());
 
 		// 球の描画
 		sphere->DrawSphere(
