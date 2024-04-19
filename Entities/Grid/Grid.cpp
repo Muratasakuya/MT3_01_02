@@ -8,8 +8,8 @@
 /// <param name="viewportMatrix"></param>
 void Grid::DrawGrid(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix, const Matrix4x4& viewportMatrix) {
 
-	const float kGridHalfWidth = 2.0f;
 	const uint32_t kSubdivision = 10;
+	const float kGridHalfWidth = 2.0f;
 	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);
 
 	/****************************************************************************************************************************/
